@@ -1,0 +1,101 @@
+// this is A quarterly average calculation program
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
+
+using namespace std;
+
+void AVG_S(double a)
+{
+    if(a<=100 && a>=83)
+    cout<<"STATE IS : "<<"Excellence"<<endl;
+    else if(a<83 && a>=76)
+    cout<<"STATE IS : "<<"VERY GOOD"<<endl;
+    else if(a<76 && a>=67)
+    cout<<"STATE IS : "<<"GOOD"<<endl;
+    else if(a<67 && a>=50)
+    cout<<"STATE IS : "<<"acceptable"<<endl;
+    else if(a<50)
+    cout<<"STATE IS : "<<"FAILD "<<endl;
+}
+
+void print(char Na[30],long i,double AG)
+{
+    cout<<"*****************************\n\n";
+    cout<<Na<<"\t"<<i<<endl;
+    cout<<"your semester average is "<<AG<<endl;
+    cout<<"\n\n*************************\n\n";
+}
+
+int main()
+{
+    
+char N[30];
+double u[200];
+int L,S;
+long I;
+
+cout<<"ENTER YOUR NAME : ";
+cin.getline(N,30);
+cout<<endl;
+
+cout<<"ENTER ID UNVIRSITY : ";
+cin>>I;
+cout<<endl;
+
+cout<<"HOW MANY SUBJECTS DID YOU FINISH IN THIS SEMESTER ? : ";
+cin>>S;
+cout<<endl;
+
+cout<<"ENTER THE NUMBER OF STUDY HOURS IN THIS SEMESTER : ";
+cin>>L;   
+cout<<endl;
+
+char a;
+cout<<"IF THIS FIRST SEMISTER TO YOU , ENTER Y ELSE ENTER N : ";    
+cin>>a;    
+cout<<endl;
+cout<<"****************************************\n";
+  //int sumM=0;
+    char sj[S][30];
+    cin.ignore();
+    for(int i=0;i<S;i++) {
+    cout<<"ENTER NAME SUBJECT "<<i+1<<" : ";
+      cin.getline(sj[i],30);
+    }
+cout<<endl;
+cout<<"****************************************\n";
+      int NS[S];
+       cout<<"ENTER SUBJECT HOURS(3,6,1..) FOR ALL SUBJECTS :\n";
+      for(int i=0;i<S;i++)
+      {
+      cout<<sj[i]<<" : ";
+      cin>>NS[i];
+      cin.ignore();
+      }
+cout<<endl;
+cout<<"****************************************\n";
+      int MK[S];
+      cout<<"ENTER MARK FOR ALL SUBJECTS :\n"; 
+     for(int i=0;i<S;i++)
+     {  
+      cout<<sj[i]<<" : ";
+      cin>>MK[i];
+      cin.ignore();
+     } 
+cout<<endl;
+
+    int sumM=0;
+    for(int i=0;i<S;i++)
+    {
+       MK[i]=MK[i]*NS[i];
+      sumM=sumM+MK[i];
+    }
+   
+  double avg; 
+  avg = static_cast<double>(sumM)/L;
+  print(N,I,avg);    
+    
+    return 0;
+}
