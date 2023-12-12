@@ -1,0 +1,210 @@
+#include<iostream>
+#include<cmath>
+#include<cstring>
+#include<stack>
+                               //ABDALRHMAN OMAR MUSTAFA HAMED 
+                               //github : AbdalrhmanHamed
+using namespace std;
+
+const int MAX_STACK = 20;
+
+int prec(char c)
+{
+    if (c=='^')
+        return 3;
+        
+    else if (c=='/' || c=='*')
+        return 2;
+        
+    else if (c == '+' || c == '-')
+        return 1;
+        
+    else
+        return -1;
+}
+
+string infixToPostfix(string s)
+{
+ 
+    stack<char> st;
+    string result;
+ 
+ 
+    for (int i = 0; i < s.length(); i++) {
+        char c=s[i];
+        
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+            result += c;
+ 
+        else if (c == '(')
+            st.push('(');
+ 
+        else if (c == ')') {
+        
+        while (st.top() != '(') {
+                result += st.top();
+                st.pop();
+            }
+            st.pop();
+        }
+ 
+        else {
+            while (!st.empty() && prec(s[i]) <= prec(st.top())) {
+                result += st.top();
+                st.pop();
+            }
+            st.push(c);
+        }
+    }
+ 
+    while (!st.empty()) {
+        result += st.top();
+        st.pop();
+    }
+    string  ANS = result;
+    
+    return ANS;
+}
+ 
+class cal_postfix
+{
+private:
+    double items[MAX_STACK];
+    int top;
+public:
+    cal_postfix()
+    {
+        top = -1;
+    }
+    bool isEmpty() const
+    {
+        return top < 0;
+ 
+    }
+    void push(double newItem)
+    {
+        if (top >= MAX_STACK - 1)
+            cout << "Stack full on push";
+        else
+        {
+            ++top;
+            items[top] = newItem;
+        }
+ 
+    }
+    void pop() {
+        if (isEmpty())
+            cout << "Stack empty on pop";
+        else
+            --top;
+ 
+    }
+    void getTop(double& stackTop,double& X) 
+    {
+        if (isEmpty())
+            cout << "stack empty on getTop";
+        else {
+            if(items[top] == 'x')
+            items[top]=X; 
+            stackTop = items[top];
+        }
+    }
+    void display()
+    {
+  
+        for (int i = 0; i < top + 1; i++)
+            cout<< items[i];
+    }
+};
+
+void resultPostfix(string num,double& X)
+{
+    cal_postfix Object;
+    double x = 0, y = 0;
+    for (int i = 0; i < num.size(); i++)
+    {
+                
+        if (num[i] == '-')
+        {
+            Object.getTop(x,X);
+            Object.pop();
+            Object.getTop(y,X);
+            Object.pop();
+            
+            Object.push((y - x));
+        }
+        else if (num[i] == '+')
+        {
+            Object.getTop(x,X);
+            Object.pop();
+            Object.getTop(y,X);
+            Object.pop();
+            
+            Object.push((y + x));
+ 
+        }
+        else if (num[i] == '*')
+        {
+            Object.getTop(x,X);
+            Object.pop();
+            Object.getTop(y,X);
+            Object.pop();
+            
+            Object.push((y * x));
+        }
+        else if (num[i] == '^')
+        {
+            Object.getTop(x,X);
+            Object.pop();
+            Object.getTop(y,X);
+            Object.pop();
+ 
+            Object.push(pow(y, x));
+        }
+        else if (num[i] == '/')
+        {
+            Object.getTop(x,X);
+            Object.pop();
+            Object.getTop(y,X);
+            Object.pop();
+            
+            Object.push(y/x);
+        }
+        else
+        {
+             if (num[i] == 'x')
+                Object.push(X);
+             else
+            Object.push(num[i] - '0');
+        }
+ 
+    }
+    
+    Object.display();
+ 
+}
+ 
+ void printFx(string f,double& x)
+{
+    string ans = infixToPostfix(f);
+   
+    resultPostfix(ans,x);
+   
+}
+
+int main()
+{
+      string f; 
+      double x;
+      cout<<"Enter the equation of f(x) = ";
+      cin>>f;
+      cout<<"Enter the value of x ? ";
+      cin>>x;
+      
+      printFx(f,x);
+      
+
+}
+
+
+
