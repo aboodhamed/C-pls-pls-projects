@@ -1,0 +1,271 @@
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <cstring>
+#include <stack>
+                             //Abdalrhman omar mustafa hamed 
+                             //github: AbdalrhmanHamed
+using namespace std; 
+
+class cal_postfix {
+private:
+    double items[20];
+    int top;
+
+public:
+    cal_postfix() {
+        top = -1;
+    }
+
+    bool isEmpty() const {
+        return top < 0;
+    }
+
+    void push(double newItem) {
+        if (top >= 20 - 1)
+            cout << "Stack full on push";
+        else {
+            ++top;
+            items[top] = newItem;
+        }
+    }
+
+    void pop() {
+        if (isEmpty())
+            cout << "Stack empty on pop";
+        else
+            --top;
+    }
+
+    void getTop(double& stackTop, double& X) {
+        if (isEmpty())
+            cout << "stack empty on getTop";
+        else {
+            if (items[top] == 'x')
+                items[top] = X;
+            stackTop = items[top];
+        }
+    }
+
+    void display() {
+        for (int i = 0; i < top + 1; i++)
+            cout << items[i];
+    }
+
+    double getResult() {
+        if (isEmpty()) {
+            cout << "Stack empty on getResult";
+            return -1; 
+        } else {
+            return items[top];
+        }
+    }
+};
+
+class fx {
+public:
+    int prec(char c) {
+        if (c == '^')
+            return 3;
+        else if (c == '/' || c == '*')
+            return 2;
+        else if (c == '+' || c == '-')
+            return 1;
+        else
+            return -1;
+    }
+
+  string infixToPostfix(string s) {
+        stack<char> st;
+        string result;
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s[i];
+
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+                result += c;
+            
+            else if (c == '(')
+                st.push('(');
+            
+            else if (c == ')') 
+            {
+                while (st.top() != '(') {
+                    result += st.top();
+                    st.pop();
+                }
+                
+                st.pop();
+            } 
+            
+            else 
+            {
+                while (!st.empty() && prec(s[i]) <= prec(st.top()))
+                {
+                    result += st.top();
+                    st.pop();
+                }
+                st.push(c);
+            }
+        }
+
+        while (!st.empty())
+        {
+            result += st.top();
+            st.pop();
+        }
+
+        return result;
+    }
+
+
+ static double AFx(string f, double& x, cal_postfix& Object) 
+ {
+        fx helper;
+        string ans = helper.infixToPostfix(f);
+        helper.resultPostfix(ans, x, Object);
+        return Object.getResult();
+ }
+
+ void resultPostfix(string num, double& X, cal_postfix& Object) 
+  {
+    double x = 0, y = 0;
+    for (int i = 0; i < num.size(); i++) 
+    {
+    
+            if (num[i] == '-') 
+            {
+                Object.getTop(x, X);
+                Object.pop();
+                Object.getTop(y, X);
+                Object.pop();
+                
+                Object.push((y - x));
+            } 
+            
+            else if (num[i] == '+')
+            {
+                Object.getTop(x, X);
+                Object.pop();
+                Object.getTop(y, X);
+                Object.pop();
+                
+                Object.push((y + x));
+            }
+            
+            else if (num[i] == '*') 
+            {
+                Object.getTop(x, X);
+                Object.pop();
+                Object.getTop(y, X);
+                Object.pop();
+             
+                Object.push((y * x));
+            } 
+            
+            else if (num[i] == '^') {
+                Object.getTop(x, X);
+                Object.pop();
+                Object.getTop(y, X);
+                Object.pop();
+            
+                Object.push(pow(y, x));
+            }
+            
+            else if (num[i] == '/')
+            {
+                Object.getTop(x, X);
+                Object.pop();
+                Object.getTop(y, X);
+                Object.pop();
+                Object.push(y / x);
+            }
+            
+            else 
+            {
+                if (num[i] == 'x')
+                    Object.push(X);
+                else
+                    Object.push(num[i] - '0');
+            }
+        }
+    }
+};
+
+
+void Bisection_Method()
+{
+    fx FX;
+    cal_postfix CP; 
+
+    int iteration;
+    string equation;
+    double a, b;
+
+    cout << "\n**************************** Bisection method *********************************\n";
+
+    cout << "Enter number of iterations you want to find root after: ";
+    cin >> iteration;
+
+    cout << "Enter interval [a,b]:\n";
+    cout << "Enter a: ";
+    cin >> a;
+    cout << "Enter b: ";
+    cin >> b;
+
+    cout << "Enter the equation of f(x): ";
+    cin >> equation;
+    cout << endl;
+
+    cout << "f(a) = f(" << a << ")  = ";
+    double resultA = fx::AFx(equation, a, CP); 
+    cout << resultA << endl;
+
+    cout << "f(b) = f(" << b << ") = ";
+    double resultB = fx::AFx(equation, b, CP); 
+    cout << resultB << endl;
+
+    if (resultA * resultB < 0)
+    {
+        cout << "There is a root because f(a) * f(b) < 0:\n";
+
+        for (int i = 1; i <= iteration; i++)
+        {
+            double c = (a + b) / 2;
+            cout << "\nIteration " << i << ":\n";
+            cout << "The value of root c = " << c << endl;
+            double resultC = fx::AFx(equation, c, CP);
+            
+            cout << "f(c) = f(" << c << ") = " << resultC << endl;
+            cout << "f(a) * f(c) = " << (resultA * resultC) << endl;
+
+            if (resultA * resultC < 0) 
+            {
+                cout << "The interval will be [" << a << "," << c << "]\n";
+                b = c;
+                resultB = resultC;
+            } 
+            
+            else if (resultA * resultC > 0)
+            {
+                cout << "The interval will be [" << c << "," << b << "]\n";
+                a = c;
+                resultA = resultC;
+            }
+        }
+    }
+    
+    else 
+    {
+        cout << "There is no root because f(a) * f(b) > 0\n";
+    }
+ 
+    
+}
+
+int main()
+{
+    Bisection_Method();
+}
+
+
