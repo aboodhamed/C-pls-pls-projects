@@ -1,0 +1,133 @@
+#include<iostream>
+#include<cmath>
+                      //ABDALRHMAN OMAR HAMED
+using namespace std;
+
+const int MAX_STACK = 20;
+
+class cal_postfix
+{
+private:
+    int items[MAX_STACK];
+    int top;
+public:
+    cal_postfix()
+    {
+        top = -1;
+    }
+    bool isEmpty() const
+    {
+        return top < 0;
+ 
+    }
+    void push(int newItem)
+    {
+        if (top >= MAX_STACK - 1)
+            cout << "Stack full on push";
+        else
+        {
+            ++top;
+            items[top] = newItem;
+        }
+ 
+    }
+    void pop() {
+        if (isEmpty())
+            cout << "Stack empty on pop";
+        else
+            --top;
+ 
+    }
+    void getTop(int& stackTop) const
+    {
+        if (isEmpty())
+            cout << "stack empty on getTop";
+        else
+            stackTop = items[top];
+    }
+    void display()
+    {
+  
+        for (int i = 0; i < top + 1; i++)
+            cout<< items[i];
+ 
+    }
+};
+
+void resultPostfix(string num)
+{
+    cal_postfix Object;
+    int x = 0, y = 0;
+    for (int i = 0; i < num.size(); i++)
+    {
+        if (num[i] == '-')
+        {
+            Object.getTop(x);
+            Object.pop();
+            Object.getTop(y);
+            Object.pop();
+ 
+            Object.push((y - x));
+        }
+        else if (num[i] == '+')
+        {
+            Object.getTop(x);
+            Object.pop();
+            Object.getTop(y);
+            Object.pop();
+ 
+            Object.push((y + x));
+ 
+        }
+        else if (num[i] == '*')
+        {
+            Object.getTop(x);
+            Object.pop();
+            Object.getTop(y);
+            Object.pop();
+ 
+            Object.push((y * x));
+ 
+        }
+        else if (num[i] == '^')
+        {
+            Object.getTop(x);
+            Object.pop();
+            Object.getTop(y);
+            Object.pop();
+ 
+            Object.push(pow(y, x));
+        }
+        else if (num[i] == '/')
+        {
+            Object.getTop(x);
+            Object.pop();
+            Object.getTop(y);
+            Object.pop();
+ 
+            Object.push(y/x);
+        }
+        else
+        {
+            Object.push(num[i] - '0');
+            continue;
+        }
+ 
+    }
+    
+    Object.display();
+ 
+ 
+    
+}
+ 
+int main()
+{
+  string EXP;
+  cout<<"Please Enter postfix value ? ";
+  cin>>EXP;
+  resultPostfix(EXP);
+ 
+    return 0;
+}
+
