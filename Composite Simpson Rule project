@@ -1,0 +1,119 @@
+
+/* this my solition for the project i have take it in my univirsity al-al-bayet unvirsity
+with Dr.khaled alfaqeh in numecrical method to use Composite simpson rule 
+this the file of prject :
+https://drive.google.com/file/d/1pltTD7mrf0iWz7suqFnKLrK05PEDJLNy/view?usp=drive_link
+*/
+
+#include <iostream>
+#include<cmath>
+
+using namespace std;
+
+long double G(long double x,long double y) 
+{
+   long double g=0;
+
+   long double up = (x+1);
+   long double Flow1 = (pow(M_PI, 2 ) * ( pow( y , 2 ) ) + ( pow((x+1),2) ) );  
+   long double Flow2 = (sqrt(  ( pow(M_PI,2) * pow(y,2) ) + ( (pow(M_PI,2))/16 ) + (pow((x+1),2) )) );
+   long double up2 = (x-1);
+   long double Llow1 = ( pow( M_PI , 2 ) * ( pow( y , 2 ) ) + ( pow((x-1),2) ) );
+   long double Llow2 = (sqrt(  ( pow(M_PI,2) * pow(y,2) ) + ( (pow(M_PI,2))/16 ) + (pow((x-1),2) )) );
+   
+   g = ( up/( (Flow1) * ( Flow2 ) ) - ( up2/(Llow1 * Llow2)) );
+   if(g>0) 
+    return g;
+   else return 0;
+}
+
+long double sumOfevenGx(long double x,long double a,long double h,int n) 
+{
+    long double sum=0;
+    for (int i = 2; i <= n - 1; i=i+2) {
+        sum = sum + G(x,(a + i * h));
+    }
+    sum=sum*2;
+    return sum;
+}
+
+long double sumOfOddGx(long double x,long double a,long double h,int n)  
+{
+    long double sum=0;
+    for (int i = 1; i <= n; i=i+2) {
+        sum = sum + G(x,(a+i*h));
+    }
+    sum=sum*4;
+    return sum;
+}
+
+long double compsite_simpsone(long double x,long double a,long double b,long double h,int n)  
+{
+    long double answer;
+    answer = (h/3)*(G(x,a) + sumOfevenGx(x,a,h,n) + sumOfOddGx(x,a,h,n) + G(x,b));
+    return answer;
+}
+
+long double f(long double x,long double h,int n)     
+{
+    long double a=0,b=1;
+    long double answer = (M_PI/8) * (compsite_simpsone(x,a,b,h,n));
+    return answer;
+}
+
+long double sumOfevenFx(long double a,long double h,int n)    
+{
+     long double sum=0;
+     for(int i = 2; i <= n - 1; i=i+2) {
+        sum = sum + 1-2*f((a + i * h),h,n);
+    }
+    sum=sum*2;
+    return sum;
+}
+
+long double sumOfOddFx(long double a,long double h,int n)    
+{
+     long double sum=0;
+    for (int i = 1; i <= n; i=i+2) {
+        sum = sum + 1-2*f((a+i*h),h,n);
+    }
+    sum=sum*4;
+    return sum;
+}
+
+long double outer_integration(int n)
+{
+   long double a=0;
+   long double b=1;
+   long double h = (b - a) /n;
+   
+   long double firstF = 1-2*f(a,h,n);
+   long double secoundF = sumOfevenFx(a,h,n);
+   long double thirdF = sumOfOddFx(a,h,n);
+   long double lastF = 1-2*f(b,h,n);
+   
+   long double F=(h/3) * (firstF + secoundF + thirdF + lastF );
+   long double v=F;
+   return v;
+}
+
+
+int main()
+{
+    int n[5] = {10, 50, 100, 1000, 100000};
+
+    for(int i=0;i<5;i++)
+    {
+        cout<<"v_integration for n = "<<n[i]<<" : \n";
+        cout<<outer_integration(n[i]);
+        cout<<endl;
+    }
+
+   
+   return 0;
+}
+
+
+
+
+
