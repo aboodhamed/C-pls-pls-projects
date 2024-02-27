@@ -4,7 +4,7 @@
 #include <cstring>
 #include <stack>
                              //Abdalrhman omar mustafa hamed 
-                             //github: AbdalrhmanHamed
+                             //github: AbdalrhmanHamed(aboodhamed)
 using namespace std; 
 
 class cal_postfix {
