@@ -1,0 +1,94 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <queue>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+struct Transition {
+    string state;
+};
+
+struct StateTransitions {
+    vector<Transition> a_transitions;
+    vector<Transition> b_transitions;
+    vector<Transition> lambda_transitions;
+};
+
+
+void printNFATransitions(const vector<string>& states, const vector<StateTransitions>& transitions) {
+    cout << "\nNFA Transitions:\n";
+    for (int i = 0; i < states.size(); ++i) {
+        
+        cout << "  ";
+        for (const auto& transition : transitions[i].a_transitions) {
+            cout << "&(" << states[i] << ", a)=" << transition.state ;
+        }
+        cout << endl;
+
+        cout << "  ";
+        for (const auto& transition : transitions[i].b_transitions) {
+
+            cout << "&(" << states[i] << ", b)=" << transition.state;
+        }
+        cout << endl;
+
+        cout << "  ";
+        for (const auto& transition : transitions[i].lambda_transitions) {
+            cout << "&(" << states[i] << ", lambda)=" << transition.state;
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    int NOStates;
+    cout << "Enter number of States(q0, q1, ...): "; //here we want to know num of states
+    cin >> NOStates;
+
+    vector<string> states(NOStates); //this vector will save name of states
+    cout << "Enter all states:";
+    for (auto &state : states) {
+        cin >> state;
+    }
+
+    vector<StateTransitions> transitions(NOStates);    
+
+    for (int i = 0; i < NOStates; ++i) {
+        int NumOfa = 0, NumOfb = 0, NumOfLambda = 0;
+        cout << "Enter number of transitions 'a' for " << states[i] << ": ";
+        cin >> NumOfa;
+        cout << "Enter number of transitions 'b' for " << states[i] << ": ";
+        cin >> NumOfb;
+        cout << "Enter number of transitions 'lambda' for " << states[i] << ": ";
+        cin >> NumOfLambda;
+
+        for (int k = 0; k < NumOfa; ++k) {
+            Transition transition;
+            cout << "&(" << states[i] << ", a): ";
+            cin >> transition.state;
+            transitions[i].a_transitions.push_back(transition);
+        }
+
+        for (int h = 0; h < NumOfb; ++h) {
+            Transition transition;
+            cout << "&(" << states[i] << ", b): ";
+            cin >> transition.state;
+            transitions[i].b_transitions.push_back(transition);
+        }
+
+        for (int g = 0; g < NumOfLambda; ++g) {
+            Transition transition;
+            cout << "&(" << states[i] << ", lambda): ";
+            cin >> transition.state;
+            transitions[i].lambda_transitions.push_back(transition);
+        }
+    }
+
+    // Print NFA transitions
+    printNFATransitions(states, transitions);
+    
+    return 0;
+}
