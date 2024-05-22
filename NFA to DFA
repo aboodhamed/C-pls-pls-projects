@@ -1,0 +1,242 @@
+#include <iostream>
+#include <vector>
+#include <set>
+#include <queue>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+struct Transition {
+    string state;
+};
+
+struct StateTransitions {
+    vector<Transition> a_transitions;
+    vector<Transition> b_transitions;
+    vector<Transition> lambda_transitions;
+};
+
+// Function to compute epsilon closure of a set of NFA states
+
+set<string> epsilonClosure(const vector<StateTransitions>& transitions, const set<string>& states, const vector<string>& all_states)
+{
+    set<string> closure = states;
+    queue<string> q;
+
+    for (const auto& state : states) {
+        q.push(state);
+    }
+
+    while (!q.empty()) {
+        string current = q.front();
+        q.pop();
+
+        // Find lambda transitions
+        for (const auto& transition : transitions[find(all_states.begin(), all_states.end(), current) - all_states.begin()].lambda_transitions) {
+            if (closure.find(transition.state) == closure.end()) {
+                closure.insert(transition.state);
+                q.push(transition.state);
+            }
+        }
+    }
+
+    return closure;
+}
+
+// Function to construct DFA states and transitions from NFA
+
+void constructDFA(const vector<StateTransitions>& nfa_transitions, const vector<string>& nfa_states, vector<StateTransitions>& dfa_transitions, vector<string>& dfa_states) {
+    map<set<string>, int> state_index_map;
+    queue<set<string>> unprocessed_states;
+
+    // Compute epsilon closure of start state
+    
+    set<string> start_state_closure = epsilonClosure(nfa_transitions, {nfa_states[0]}, nfa_states);
+    unprocessed_states.push(start_state_closure);
+    state_index_map[start_state_closure] = 0;
+    dfa_states.push_back("q0");
+
+    int index = 0;
+    while (!unprocessed_states.empty())
+    {
+        set<string> current_state = unprocessed_states.front();
+        unprocessed_states.pop();
+        int current_index = state_index_map[current_state];
+
+        // Process transitions on 'a' and 'b' symbols
+    
+        for (char symbol : {'a', 'b'}) {
+            set<string> next_state;
+    
+            for (const string& state : current_state) {
+                int state_index = find(nfa_states.begin(), nfa_states.end(), state) - nfa_states.begin();
+                const vector<Transition>& transitions = (symbol == 'a') ? nfa_transitions[state_index].a_transitions : nfa_transitions[state_index].b_transitions;
+                
+                for (const auto& transition : transitions) {
+                    next_state.insert(transition.state);
+                }
+            }
+            
+            set<string> next_state_closure = epsilonClosure(nfa_transitions, next_state, nfa_states);
+            
+            if (!next_state_closure.empty()) {
+                if (state_index_map.find(next_state_closure) == state_index_map.end()) {
+                    state_index_map[next_state_closure] = ++index;
+                    unprocessed_states.push(next_state_closure);
+                    dfa_states.push_back("q" + to_string(index)); //it will bush number of q (حسب ال اندكس)
+                }
+                
+                StateTransitions transition;
+                transition.lambda_transitions.clear(); // Clearing lambda transitions for DFA
+                
+                // Concatenate all states in next_state_closure to represent simultaneous states in DFA
+                
+                string next_state_str;
+                
+                for (const auto& state : next_state_closure) {
+                    next_state_str += state + ",";   //will do comma
+                }
+                
+                next_state_str.pop_back(); // Remove the last comma
+              
+                if (symbol == 'a') 
+                {
+                    dfa_transitions[current_index].a_transitions.push_back({next_state_str});
+                }
+                
+                else
+                {
+                    dfa_transitions[current_index].b_transitions.push_back({next_state_str});
+                }
+            }
+        }
+    }
+}
+
+
+// Function to print NFA transitions
+
+void printNFATransitions(const vector<string>& states, const vector<StateTransitions>& transitions) 
+{
+    cout << "\nNFA Transitions:\n";
+    for (int i = 0; i < states.size(); ++i) {
+        
+        cout << "  ";
+        for (const auto& transition : transitions[i].a_transitions) {
+            cout << "&(" << states[i] << ", a)=" << transition.state << " , ";
+        }
+        cout << endl;
+
+        cout << "  ";
+        for (const auto& transition : transitions[i].b_transitions) {
+            cout << "&(" << states[i] << ", b)=" << transition.state << " , ";
+        }
+        cout << endl;
+
+        cout << "  ";
+        for (const auto& transition : transitions[i].lambda_transitions) {
+            cout << "&(" << states[i] << ", lambda)=" << transition.state << " , ";
+        }
+        cout << endl;
+    }
+}
+
+// Function to print DFA transitions
+
+void printDFATransitions(const vector<string>& dfa_states, const vector<StateTransitions>& dfa_transitions) {
+    cout << "\nDFA Transitions:\n";
+ 
+    for (int i = 0; i < dfa_states.size(); ++i) {
+        
+        cout << "  ";
+        for (const auto& transition : dfa_transitions[i].a_transitions) {
+            cout << "&(" << dfa_states[i] << ", a)=" << transition.state << " , ";
+        }
+        
+        cout << endl;
+
+        cout << "  ";
+        
+        for (const auto& transition : dfa_transitions[i].b_transitions) {
+            cout << "&(" << dfa_states[i] << ", b)=" << transition.state << " , ";
+        }
+        
+        cout << endl;
+    }
+}
+
+int main() 
+{
+    int NOStates;
+
+    cout << "Enter number of States(q0, q1, ...): ";
+    cin >> NOStates;
+
+    vector<string> states(NOStates);
+    cout << "Enter all states:";
+
+    for (auto &state : states)
+    {
+        cin >> state;
+    }
+
+    vector<StateTransitions> transitions(NOStates);
+
+    for (int i = 0; i < NOStates; ++i)
+    {
+        int NumOfa = 0, NumOfb = 0, NumOfLambda = 0;
+        cout << "Enter number of transitions 'a' for " << states[i] << ": ";
+        cin >> NumOfa;
+    
+        cout << "Enter number of transitions 'b' for " << states[i] << ": ";
+        cin >> NumOfb;
+    
+        cout << "Enter number of transitions 'lambda' for " << states[i] << ": ";
+        cin >> NumOfLambda;
+
+        for (int k = 0; k < NumOfa; ++k)
+        {
+            Transition transition; //from struct
+            cout << "&(" << states[i] << ", a): ";
+            cin >> transition.state;
+            transitions[i].a_transitions.push_back(transition);
+        }
+
+        for (int h = 0; h < NumOfb; ++h) 
+        {
+            Transition transition;
+            cout << "&(" << states[i] << ", b): ";
+            cin >> transition.state;
+            transitions[i].b_transitions.push_back(transition);
+        }
+
+        for (int g = 0; g < NumOfLambda; ++g) 
+        {
+            Transition transition;
+            cout << "&(" << states[i] << ", lambda): ";
+            cin >> transition.state;
+            transitions[i].lambda_transitions.push_back(transition);
+        }
+        
+    }
+
+    // Print NFA transitions
+    
+    printNFATransitions(states, transitions);
+
+    // Constructing DFA from NFA
+    
+    vector<StateTransitions> dfa_transitions(states.size());
+    
+    vector<string> dfa_states;
+    
+    constructDFA(transitions, states, dfa_transitions, dfa_states);
+
+    // Print DFA transitions
+    printDFATransitions(dfa_states, dfa_transitions);
+
+    return 0;
+}
+
+
